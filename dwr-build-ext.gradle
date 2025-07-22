@@ -1,0 +1,5 @@
+includeBuild("$gradle.ext.externalLibDir") {
+    dependencySubstitution {
+        substitute(module("gov.ca.dwr:system-summary-report-tool")).using(project(":system-summary-report-tool"))
+    }
+}

@@ -21,7 +21,15 @@ public class Batch {
 				System.out.println(msgs);
 			}
 			
-			System.out.println("Done!\n");
+			System.out.println("Report Complete.\n");
+			System.out.println("Validating Results.\n");
+			if(report.isValidationFailed())
+			{
+				System.out.println("Variable difference exceeds tolerance for some variables.");
+				System.out.println("Please check the report for details.");
+				System.exit(2); // variable tolerance exceeded.
+			}
+
 			System.exit(0);
 
 		}
