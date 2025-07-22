@@ -6,7 +6,6 @@ plugins{
 
 dependencies {
     implementation libs.hec.monolith
-    implementation libs.hec.nucleus.metadata
     implementation libs.pdf.renderer
     implementation libs.dom4j
     implementation libs.crimson
@@ -15,7 +14,7 @@ dependencies {
     implementation libs.itextpdf
     implementation libs.itexthyphxml
     implementation libs.dsm2inputmodel
-    runtimeOnly 'mil.army.usace.hec:javaHeclib:7-IS-2-win-x86_64@zip'
+    runtimeOnly 'mil.army.usace.hec:javaHeclib:7-IU-4-win-x86_64@zip'
 }
 
 publishing {

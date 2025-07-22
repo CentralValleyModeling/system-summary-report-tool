@@ -3,6 +3,13 @@ plugins {
 }
 
 compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    options.release = 21
 }
+
+java {
+    // When building a library, ensure that a Sources and Javadoc jar are included as well; this makes sure
+    // that IDEs are able to automatically download and use the sources and javadoc for your library.
+    withSourcesJar()
+    withJavadocJar()
+}
+
