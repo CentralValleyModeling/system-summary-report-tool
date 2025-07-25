@@ -3,13 +3,8 @@ plugins{
 }
 
 def versionLabel(gitInfo) {
-    def branch = gitInfo.branchName // all branches are snapshots, only tags get released
-    if (branch == null && !"$System.env.GITHUB_HEAD_REF".isEmpty()) {
-        branch = "$System.env.GITHUB_HEAD_REF"
-    }
     def tag = gitInfo.lastTag
-    // tag is returned as is. Branch may need cleanup
-    return branch == null ? tag : branch.replace("/","-") + "-SNAPSHOT"
+    return gitInfo.branchName == null ? tag : tag + ".9999"
 }
 
 allprojects {
