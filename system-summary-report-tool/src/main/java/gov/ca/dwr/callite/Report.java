@@ -12,6 +12,7 @@ import hec.heclib.util.HecTime;
 import hec.io.TimeSeriesContainer;
 
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -154,6 +155,9 @@ public class Report {
 				maxTolerance = Double.parseDouble(maxToleranceStr);
 			} catch (NumberFormatException e) {
 				logger.warning("Invalid MAX_TOLERANCE value: " + maxToleranceStr);
+				ValidationFailureLog validationFailureLog = new ValidationFailureLog("MAX_TOLERANCE Scalar Value failed to parse from inp file", null,
+						null, null);
+				validationFailureLogs.add(validationFailureLog);
 				maxTolerance = null;
 			}
 		} else {
@@ -426,16 +430,6 @@ public class Report {
 					rowData.add(formatDoubleValue(pctDiff));
 
 					evaluatePercentTolerance(pctDiff, pathMap.var_name, tw);
-
-					// compare the diff and pctDiff to the threshold
-					// TODO: Read this from config file
-//					boolean isValueWithinTolerance = checkTolerance(diff, pctDiff);
-					double threshold = 0.0; //Read this from config file
-					String withinTolerance = "PASS";
-					if (Math.abs(diff) > threshold || Math.abs(pctDiff) > threshold) {
-						withinTolerance = "FAIL";
-					}
-//					Array<String> rowResults.add(withinTolerance);
 				}
 			}
 			if ("B".equals(pathMap.row_type)) {
@@ -563,7 +557,7 @@ public class Report {
 				sb.append(log.getCsvString(delimiter)).append("\n");
 			}
 
-			try (java.io.FileWriter writer = new java.io.FileWriter(filePath)) {
+			try (FileWriter writer = new FileWriter(filePath)) {
 				writer.write(sb.toString());
 			} catch (IOException e) {
 				logger.severe("Error writing validation failure logs to CSV: " + e.getMessage());

@@ -14,7 +14,7 @@ dependencies {
     implementation libs.itextpdf
     implementation libs.itexthyphxml
     implementation libs.dsm2inputmodel
-    runtimeOnly 'mil.army.usace.hec:javaHeclib:7-IU-4-win-x86_64@zip'
+    runtimeOnly(libs.javaHeclib){artifact {type = 'zip'}}
 }
 
 publishing {

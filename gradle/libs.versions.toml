@@ -8,6 +8,7 @@ jcommon = "1.0.17"
 itextpdf = "5.5.13.3"
 itext-hyph-xml = "5.1.1"
 dsm2-input-model  = "1.0"
+javaHeclib = "7-IU-4-win-x86_64"
 
 [libraries]
 hec-monolith = { module = "mil.army.usace.hec:hec-monolith", version.ref = "hec-monolith" }
@@ -19,4 +20,5 @@ jcommon = { module = 'org.jfree:jcommon', version.ref = "jcommon" }
 itextpdf = { module = 'com.itextpdf:itextpdf', version.ref = "itextpdf" }
 itexthyphxml = { module = 'com.itextpdf:itext-hyph-xml', version.ref = "itext-hyph-xml" }
 dsm2inputmodel = { module = "dsm2.vista:dsm2-input-model", version.ref = "dsm2-input-model" }
+javaHeclib = { module = "mil.army.usace.hec:javaHeclib", version.ref = "javaHeclib" }
 

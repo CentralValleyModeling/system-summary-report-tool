@@ -16,7 +16,7 @@ This allows the wrims-engine build to fail if the report fails validation.
 Additional inputs will be supported to allow for individual variable tolerances and time series difference tolerances. 
 
 # Developer Notes
-The source for the system-summary-report-tool can be linked to the wrims-engine build by adding the path the parent folder of the system-summary-report-tool to the `librarySourcesDir` variable in the `wrims-engine/gradle.properties` file.
+The source for the system-summary-report-tool can be linked to the wrims-engine build by adding the path to the parent folder of the system-summary-report-tool to the `librarySourcesDir` variable in the `wrims-engine/gradle.properties` file.
 
 ## Example gradle.properties entry
 

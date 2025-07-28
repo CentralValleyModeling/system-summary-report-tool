@@ -4,6 +4,8 @@ import java.io.File;
 
 public class Batch {
 
+	public static final int EXIT_CODE_VARIABLE_EXCEEDS_TOLERANCE = 2;
+
 	/**
 	 * @param args
 	 */
@@ -27,7 +29,7 @@ public class Batch {
 			{
 				System.out.println("Variable difference exceeds tolerance for some variables.");
 				System.out.println("Please check the report for details.");
-				System.exit(2); // variable tolerance exceeded.
+				System.exit(EXIT_CODE_VARIABLE_EXCEEDS_TOLERANCE); // variable tolerance exceeded.
 			}
 
 			System.exit(0);
