@@ -78,6 +78,7 @@ public class Report {
 	private ArrayList<ArrayList<String>> twValues;
 	private ArrayList<PathnameMap> pathnameMaps;
 	private HashMap<String, String> scalars;
+	private HashMap<String, List<VariableTolerance>> variableTolerances;
 	private Writer writer;
 	private Double maxTolerance;
 
@@ -105,25 +106,54 @@ public class Report {
 	void parseTemplateFile(InputStream templateFileStream) throws IOException {
 		Parser p = new Parser();
 		Tables tables = p.parseModel(templateFileStream);
-		// load scalars into a map
-		InputTable scalarTable = tables.getTableNamed("SCALAR");
-		ArrayList<ArrayList<String>> scalarValues = scalarTable.getValues();
-		int nscalars = scalarValues.size();
-		scalars = new HashMap<String, String>();
-		for (int i = 0; i < nscalars; i++) {
-			String name = scalarTable.getValue(i, "NAME");
-			String value = scalarTable.getValue(i, "VALUE");
-			scalars.put(name, value);
-		}
-		extractMaxTolerance();
+		loadScalarTable(tables.getTableNamed("SCALAR"));
+		loadPathnameTable(tables.getTableNamed("PATHNAME_MAPPING"));
+		loadTimeWindowTable(tables.getTableNamed("TIME_PERIODS"));
+		loadVarianceTable(tables.getTableNamed("VARIABLE_TOLERANCES"));
+	}
 
-		// load pathname mapping into a map
-		InputTable pathnameMappingTable = tables
-				.getTableNamed("PATHNAME_MAPPING");
+	private void loadVarianceTable(InputTable variableToleranceTable) {
+		if (variableToleranceTable == null) {
+			return;
+		}
+		ArrayList<ArrayList<String>> vtValues = variableToleranceTable.getValues();
+		variableTolerances = new HashMap<>();
+		for (int i = 0; i < vtValues.size(); i++) {
+			try {
+				parseVariableTolerance(variableToleranceTable, i);
+			} catch (Exception e) {
+				logger.severe("Error parsing Variable Tolerance: " + vtValues.get(i).toString());
+				throw(e);
+            }
+        }
+	}
+
+	private void parseVariableTolerance(InputTable variableToleranceTable, int i) {
+		String varName = variableToleranceTable.getValue(i, "VARIABLE_NAME");
+		ToleranceType toleranceType = ToleranceType.valueOf(variableToleranceTable
+				.getValue(i, "TOLERANCE_TYPE").toUpperCase());
+		Double toleranceValue = Double.parseDouble(variableToleranceTable
+				.getValue(i, "TOLERANCE_VALUE").toUpperCase());
+
+		VariableTolerance variableTolerance = new VariableTolerance(varName, toleranceValue, toleranceType);
+		if(variableTolerances.containsKey(varName)) {
+			variableTolerances.get(varName).add(variableTolerance);
+		} else {
+			List<VariableTolerance> vtList = new ArrayList<>();
+			vtList.add(variableTolerance);
+			variableTolerances.put(varName, vtList);
+		}
+	}
+
+	private void loadTimeWindowTable(InputTable timeWindowTable) {
+		twValues = timeWindowTable.getValues();
+	}
+
+	private void loadPathnameTable(InputTable pathnameMappingTable) {
 		ArrayList<ArrayList<String>> pmap_values = pathnameMappingTable
 				.getValues();
 		int nvalues = pmap_values.size();
-		pathnameMaps = new ArrayList<PathnameMap>();
+		pathnameMaps = new ArrayList<>();
 		for (int i = 0; i < nvalues; i++) {
 			String var_name = pathnameMappingTable.getValue(i, "VARIABLE");
 			var_name = var_name.replace("\"", "");
@@ -143,8 +173,19 @@ public class Report {
 			path_map.units = pathnameMappingTable.getValue(i, "UNIT");
 			pathnameMaps.add(path_map);
 		}
-		InputTable timeWindowTable = tables.getTableNamed("TIME_PERIODS");
-		twValues = timeWindowTable.getValues();
+	}
+
+	private void loadScalarTable(InputTable scalarTable) {
+		ArrayList<ArrayList<String>> scalarValues = scalarTable.getValues();
+		int nscalars = scalarValues.size();
+		scalars = new HashMap<>();
+		for (int i = 0; i < nscalars; i++) {
+			String name = scalarTable.getValue(i, "NAME");
+			String value = scalarTable.getValue(i, "VALUE");
+			scalars.put(name, value);
+		}
+
+		extractMaxTolerance();
 	}
 
 	private void extractMaxTolerance() {
