@@ -1,6 +1,22 @@
 # callite-report-tool
 CalLite Report Tool refactored out of Central Valley Modeling WRIMS
 
+# INPUT FILE - TIME_PERIODS
+
+When using the system-summary-report-tool, you can define specific time periods for which the report will be generated. 
+This is done through a TIME_PERIODS table in the input file (.inp).
+With the current implementation, it is important that the first time period encapsulates the entire time range of the report.
+
+## Example TIME_PERIODS Table
+```
+TIME_PERIODS
+NAME			TIMEWINDOW
+"Period 1"	"31OCT1921 2400 - 30SEP1925 2400"
+"Period 2"	"31OCT1922 2400 - 30SEP1923 2400"
+"Period 3"	"31OCT1924 2400 - 30SEP1925 2400"
+END
+```
+
 # Report Variance Pass / Fail controls
 Support for an optional global variable named "MAX_TOLERANCE" has been added to the scalar values in the inp file.
 

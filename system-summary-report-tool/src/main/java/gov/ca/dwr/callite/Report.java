@@ -417,7 +417,7 @@ public class Report {
 					}
 					rowData.add(formatDoubleValue(diff));
 					rowData.add(formatDoubleValue(pctDiff));
-					validator.evaluateTolerance(diff, pctDiff, pathMap.var_name, tw);
+					validator.evaluateTolerance(Validator.SOURCE_SUMMARY_TABLE, diff, pctDiff, pathMap.var_name, tw);
 				}
 			}
 			if ("B".equals(pathMap.row_type)) {

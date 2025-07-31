@@ -5,8 +5,10 @@ public class ValidationFailureLog {
     String variableName;
     String timeWindow;
     Double diffValue;
+    String validationSource;
 
-    public ValidationFailureLog(String variableName, String timeWindow, VariableTolerance variableTolerance, Double diffValue) {
+    public ValidationFailureLog(String validationSource, String variableName, String timeWindow, VariableTolerance variableTolerance, Double diffValue) {
+        this.validationSource = validationSource;
         this.variableName = variableName;
         this.timeWindow = timeWindow;
         this.diffValue = diffValue;
@@ -14,8 +16,8 @@ public class ValidationFailureLog {
     }
 
     public String getLogString() {
-        return String.format("Variable: %s, Time Window: %s, Tolerance Type: Tolerance: %.2f%%, Value: %.2f",
-                             variableName, timeWindow, variableTolerance.getToleranceType(), variableTolerance.getToleranceValue(), diffValue);
+        return String.format("Validation Source: %s, Variable: %s, Time Window: %s, Tolerance Type: Tolerance: %.2f%%, Value: %.2f",
+                             validationSource, variableName, timeWindow, variableTolerance.getToleranceType(), variableTolerance.getToleranceValue(), diffValue);
     }
 
     public String getVariableName() {
@@ -34,6 +36,10 @@ public class ValidationFailureLog {
         this.timeWindow = timeWindow;
     }
 
+    public String getValidationSource() {
+        return validationSource;
+    }
+
     public Double getDiffTolerance() {
         return variableTolerance.getToleranceValue();
     }
@@ -47,7 +53,8 @@ public class ValidationFailureLog {
     }
 
     public String getCsvString(String delimiter) {
-        return variableName + delimiter +
+        return validationSource + delimiter +
+                variableName + delimiter +
                 timeWindow + delimiter +
                 variableTolerance.getToleranceType() + delimiter +
                 String.format("%.2f", variableTolerance.getToleranceValue()) + delimiter +

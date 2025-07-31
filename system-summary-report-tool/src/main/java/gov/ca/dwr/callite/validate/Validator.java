@@ -15,12 +15,15 @@ public class Validator {
     private final List<ValidationFailureLog> validationFailureLogs = new ArrayList<>();
     private VariableTolerance globalMaxTolerance = null;
     static final Logger logger = Logger.getLogger("callite.report.validator");
+    private static final String VALIDATION_SOURCE_HEADER = "VALIDATION_SOURCE";
     private static final String VARIABLE_NAME_HEADER = "VARIABLE_NAME";
     private static final String TOLERANCE_TYPE_HEADER = "TOLERANCE_TYPE";
     private static final String TOLERANCE_VALUE_HEADER = "TOLERANCE_VALUE";
     private static final String DIFF_VALUE_HEADER = "DIFF_VALUE";
     private static final String TIME_WINDOW_HEADER = "TIME_WINDOW";
     private static final String GLOBAL_MAX_TOLERANCE_HEADER = "GLOBAL_MAX_TOLERANCE";
+    public static final String SOURCE_TIME_SERIES = "TimeSeries";
+    public static final String SOURCE_SUMMARY_TABLE = "Summary Table";
 
     public Validator() {
         this.variableTolerances = new HashMap<>();
@@ -80,7 +83,7 @@ public class Validator {
                 setGlobalMaxTolerance(Double.parseDouble(maxToleranceStr));
             } catch (NumberFormatException e) {
                 logger.warning("Invalid MAX_TOLERANCE value: " + maxToleranceStr);
-                ValidationFailureLog validationFailureLog = new ValidationFailureLog("MAX_TOLERANCE Scalar Value failed to parse from inp file", null,
+                ValidationFailureLog validationFailureLog = new ValidationFailureLog("LOADING INPUTS", "MAX_TOLERANCE Scalar Value failed to parse from inp file", null,
                         null, null);
                 validationFailureLogs.add(validationFailureLog);
             }
@@ -89,25 +92,25 @@ public class Validator {
         }
     }
 
-    public void evaluateTolerance(double diff, double pctDiff, String varName, TimeWindow tw) {
+    public void evaluateTolerance(String validationSource, double diff, double pctDiff, String varName, TimeWindow tw) {
         if(variableTolerances.containsKey(varName)) {
             List<VariableTolerance> vtList = variableTolerances.get(varName);
-            evaluateVariableTolerances(diff, pctDiff, varName, tw, vtList);
+            evaluateVariableTolerances(validationSource, diff, pctDiff, varName, tw, vtList);
         }
         else {
-            evaluateGlobalPercentTolerance(pctDiff, varName, tw);
+            evaluateGlobalPercentTolerance(validationSource, pctDiff, varName, tw);
         }
     }
 
-    public void evaluateVariableTolerances(double diff, double pctDiff, String varName, TimeWindow tw, List<VariableTolerance> vtList) {
+    public void evaluateVariableTolerances(String validationSource, double diff, double pctDiff, String varName, TimeWindow tw, List<VariableTolerance> vtList) {
         for (VariableTolerance vt : vtList) {
             switch(vt.toleranceType)
             {
                 case MAX_VALUE_DIFF:
-                    evaluateMaxValueDiff(diff, varName, tw, vt);
+                    evaluateMaxValueDiff(validationSource, diff, varName, tw, vt);
                     break;
                 case MAX_PERCENT_DIFF:
-                    evaluateMaxPercentDiff(pctDiff, varName, tw, vt);
+                    evaluateMaxPercentDiff(validationSource,pctDiff, varName, tw, vt);
                     break;
                 default:
                     logger.warning("Unknown tolerance type for variable: " + varName);
@@ -115,27 +118,27 @@ public class Validator {
         }
     }
 
-    public void evaluateMaxPercentDiff(double pctDiff, String varName, TimeWindow tw, VariableTolerance vt) {
+    public void evaluateMaxPercentDiff(String validationSource, double pctDiff, String varName, TimeWindow tw, VariableTolerance vt) {
         logger.fine("Evaluating percent tolerance for variable: " + varName);
         if (Math.abs(pctDiff) > vt.getToleranceValue()) {
-            ValidationFailureLog validationFailureLog = new ValidationFailureLog(varName, Utils.formatTimeWindowAsWaterYear(tw),
+            ValidationFailureLog validationFailureLog = new ValidationFailureLog(validationSource, varName, Utils.formatTimeWindowAsWaterYear(tw),
                     vt, pctDiff);
             validationFailureLogs.add(validationFailureLog);
         }
     }
 
-    public void evaluateMaxValueDiff(double diff, String varName, TimeWindow tw, VariableTolerance vt) {
+    public void evaluateMaxValueDiff(String validationSource, double diff, String varName, TimeWindow tw, VariableTolerance vt) {
         logger.fine("Evaluating absolute tolerance for variable: " + varName);
         if (Math.abs(diff) > vt.getToleranceValue()) {
-            ValidationFailureLog validationFailureLog = new ValidationFailureLog(varName, Utils.formatTimeWindowAsWaterYear(tw),
+            ValidationFailureLog validationFailureLog = new ValidationFailureLog(validationSource, varName, Utils.formatTimeWindowAsWaterYear(tw),
                     vt, diff);
             validationFailureLogs.add(validationFailureLog);
         }
     }
 
-    public void evaluateGlobalPercentTolerance(double pctDiff, String varName, TimeWindow tw) {
+    public void evaluateGlobalPercentTolerance(String validationSource, double pctDiff, String varName, TimeWindow tw) {
         if (globalMaxTolerance != null && Math.abs(pctDiff) > globalMaxTolerance.getToleranceValue()) {
-            ValidationFailureLog validationFailureLog = new ValidationFailureLog(varName, Utils.formatTimeWindowAsWaterYear(tw),
+            ValidationFailureLog validationFailureLog = new ValidationFailureLog(validationSource, varName, Utils.formatTimeWindowAsWaterYear(tw),
                     globalMaxTolerance, pctDiff);
             validationFailureLogs.add(validationFailureLog);
         }
@@ -173,7 +176,8 @@ public class Validator {
     }
 
     private String getValidationFileHeader(String delimiter) {
-        return VARIABLE_NAME_HEADER + delimiter +
+        return VALIDATION_SOURCE_HEADER + delimiter +
+                VARIABLE_NAME_HEADER + delimiter +
                 TIME_WINDOW_HEADER + delimiter +
                 TOLERANCE_TYPE_HEADER + delimiter +
                 TOLERANCE_VALUE_HEADER + delimiter +
@@ -263,17 +267,17 @@ public class Validator {
             {
                 //get the average diff value from absDiffs
                 List<VariableTolerance> vtList = variableTolerances.get(varName);
-                evaluateVariableTolerances(maxDiff.getAsDouble(), maxPercentDiff.getAsDouble(), varName, tw, vtList);
+                evaluateVariableTolerances("TimeSeries", maxDiff.getAsDouble(), maxPercentDiff.getAsDouble(), varName, tw, vtList);
             }
             else if (globalMaxTolerance != null)
             {
-                evaluateGlobalPercentTolerance(maxPercentDiff.getAsDouble(), varName, tw);
+                evaluateGlobalPercentTolerance("TimeSeries", maxPercentDiff.getAsDouble(), varName, tw);
             }
 
         }
         catch (Exception e) {
             logger.severe("Error evaluating time series difference for variable: " + varName + " - " + e.getMessage());
-            ValidationFailureLog validationFailureLog = new ValidationFailureLog(varName, Utils.formatTimeWindowAsWaterYear(tw),
+            ValidationFailureLog validationFailureLog = new ValidationFailureLog("TimeSeries", varName, Utils.formatTimeWindowAsWaterYear(tw),
                     globalMaxTolerance, maxPercentDiff.getAsDouble());
             validationFailureLogs.add(validationFailureLog);
         }
