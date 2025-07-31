@@ -1,4 +1,4 @@
-package gov.ca.dwr.callite;
+package gov.ca.dwr.callite.validate;
 
 public class VariableTolerance {
     String variableName;
