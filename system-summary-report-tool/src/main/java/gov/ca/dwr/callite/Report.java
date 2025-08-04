@@ -31,6 +31,7 @@ import java.util.logging.Logger;
  */
 public class Report {
 	private final List<ValidationFailureLog> validationFailureLogs = new ArrayList<>();
+	private static final String DEFAULT_VALIDATION_LOG_FILE = "VALIDATION_FAILURES.csv";
 
 	/**
 	 * Externalizes the format for output. This allows the flexibility of
@@ -578,10 +579,10 @@ public class Report {
 	private String getValidationFailureFileName() {
 		String outputFile = getOutputFile();
 		if (outputFile == null || outputFile.isEmpty()) {
-			logger.warning("Output file is not set. Cannot generate validation failure log file.");
-			return "VALIDATION_FAILURES.csv"; // Default name if output file is not set
+			logger.warning("Output file is not defined. Defaulting validation log filename to "+DEFAULT_VALIDATION_LOG_FILE);
+			return DEFAULT_VALIDATION_LOG_FILE; // Default name if output file is not set
 		}
 		String baseName = outputFile.substring(0, outputFile.lastIndexOf('.'));
-		return baseName + "_VALIDATION_FAILURES.csv";
+		return baseName + "_" + DEFAULT_VALIDATION_LOG_FILE;
 	}
 }
