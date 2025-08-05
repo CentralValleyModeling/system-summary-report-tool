@@ -15,6 +15,7 @@ public class Validator {
     private final List<ValidationFailureLog> validationFailureLogs = new ArrayList<>();
     private VariableTolerance globalMaxTolerance = null;
     static final Logger logger = Logger.getLogger("callite.report.validator");
+    private static final String DEFAULT_VALIDATION_LOG_FILE = "VALIDATION_FAILURES.csv";
     private static final String VALIDATION_SOURCE_HEADER = "VALIDATION_SOURCE";
     private static final String VARIABLE_NAME_HEADER = "VARIABLE_NAME";
     private static final String TOLERANCE_TYPE_HEADER = "TOLERANCE_TYPE";
@@ -186,11 +187,11 @@ public class Validator {
 
     public String getValidationFailureFileName(String outputFile) {
         if (outputFile == null || outputFile.isEmpty()) {
-            logger.warning("Output file is not set. Cannot generate validation failure log file.");
-            return "VALIDATION_FAILURES.csv"; // Default name if output file is not set
+            logger.warning("Output file is not defined. Defaulting validation log filename to "+DEFAULT_VALIDATION_LOG_FILE);
+            return DEFAULT_VALIDATION_LOG_FILE; // Default name if output file is not set
         }
         String baseName = outputFile.substring(0, outputFile.lastIndexOf('.'));
-        return baseName + "_VALIDATION_FAILURES.csv";
+        return baseName + "_" + DEFAULT_VALIDATION_LOG_FILE;
     }
 
     public void validationComplete(String outputFile) {
