@@ -1,6 +1,5 @@
 [versions]
-hec-monolith = "3.3.22"
-hec-nucleus-metadata = "2.0.1"
+hec-monolith = "5.3.5"
 pdf-renderer = "1.0.5"
 dom4j = "1.6.1"
 crimson = "1.1.3"
@@ -9,10 +8,10 @@ jcommon = "1.0.17"
 itextpdf = "5.5.13.3"
 itext-hyph-xml = "5.1.1"
 dsm2-input-model  = "1.0"
+javaHeclib = "7-IU-4-win-x86_64"
 
 [libraries]
 hec-monolith = { module = "mil.army.usace.hec:hec-monolith", version.ref = "hec-monolith" }
-hec-nucleus-metadata = { module = "mil.army.usace.hec:hec-nucleus-metadata", version.ref = "hec-nucleus-metadata" }
 pdf-renderer = {module = "org.swinglabs:pdf-renderer", version.ref = "pdf-renderer"}
 dom4j = { module = 'dom4j:dom4j', version.ref = "dom4j" }
 crimson = { module = 'crimson:crimson', version.ref = "crimson" }
@@ -21,4 +20,5 @@ jcommon = { module = 'org.jfree:jcommon', version.ref = "jcommon" }
 itextpdf = { module = 'com.itextpdf:itextpdf', version.ref = "itextpdf" }
 itexthyphxml = { module = 'com.itextpdf:itext-hyph-xml', version.ref = "itext-hyph-xml" }
 dsm2inputmodel = { module = "dsm2.vista:dsm2-input-model", version.ref = "dsm2-input-model" }
+javaHeclib = { module = "mil.army.usace.hec:javaHeclib", version.ref = "javaHeclib" }
 

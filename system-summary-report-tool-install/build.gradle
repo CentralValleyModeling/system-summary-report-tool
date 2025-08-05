@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     implementation(project(":system-summary-report-tool"))
-    runtimeOnly 'mil.army.usace.hec:javaHeclib:7-IS-2-win-x86_64@zip'
+    runtimeOnly(libs.javaHeclib){artifact {type = 'zip'}}
 }
 
 task extractDll(type: Copy) {
