@@ -1,6 +1,22 @@
 # callite-report-tool
 CalLite Report Tool refactored out of Central Valley Modeling WRIMS
 
+# INPUT FILE - TIME_PERIODS
+
+When using the system-summary-report-tool, you can define specific time periods for which the report will be generated. 
+This is done through a TIME_PERIODS table in the input file (.inp).
+With the current implementation, it is important that the first time period encapsulates the entire time range of the report.
+
+## Example TIME_PERIODS Table
+```
+TIME_PERIODS
+NAME			TIMEWINDOW
+"Period 1"	"31OCT1921 2400 - 30SEP1925 2400"
+"Period 2"	"31OCT1922 2400 - 30SEP1923 2400"
+"Period 3"	"31OCT1924 2400 - 30SEP1925 2400"
+END
+```
+
 # Report Variance Pass / Fail controls
 Support for an optional global variable named "MAX_TOLERANCE" has been added to the scalar values in the inp file.
 
@@ -12,8 +28,32 @@ A CSV file is generated with the ValidationFailureLogs, which can be used to rev
 
 This allows the wrims-engine build to fail if the report fails validation.
 
+# VARIABLE TOLERANCE CONTROLS
+The system-summary-report-tool now supports individual variable tolerances that can be defined in an optional table within the .inp file.
+This allows for more granular control over the validation of specific variables in the report, overriding the global MAX_TOLERANCE setting.
+Variable tolerances are defined with VARIABLE_NAME, TOLERANCE_TYPE, and TOLERANCE_VALUE.
+
+## Variable Tolerance Table Example
+```
+VARIABLE_TOLERANCES
+VARIABLE_NAME        TOLERANCE_TYPE  TOLERANCE_VALUE
+"Trinirty Storage"  	MAX_PERCENT_DIFF	    5.0
+"Trinirty Storage"  	MAX_VALUE_DIFF	        1
+"X2 Position"           MAX_VALUE_DIFF 	        2.0
+"Trinity Export"        MAX_PERCENT_DIFF        1.0
+"Trinity Export"        MAX_VALUE_DIFF          1.0
+END
+```
+
+The VARIABLE_NAME must match with a variable name defined in the PATHNAME_MAPPING table. 
+Supported TOLERANCE_TYPE values are `MAX_PERCENT_DIFF` and `MAX_VALUE_DIFF`.
+Multiple tolerances can be defined for the same variable, and the system will apply all defined tolerances to the variable when validating the report.
+If a VariableTolerance is defined for a variable, the MAX_TOLERANCE global variable will not be applied to that variable.
+
+Variances exceeding the defined tolerances will result in a ValidationFailureLog being recorded, similar to the global MAX_TOLERANCE behavior.
+
 # Future Improvements
-Additional inputs will be supported to allow for individual variable tolerances and time series difference tolerances. 
+Additional tolerance types can be added in the future, such as `MIN_PERCENT_DIFF` or `MIN_VALUE_DIFF`, to allow for more comprehensive validation controls. 
 
 # Developer Notes
 The source for the system-summary-report-tool can be linked to the wrims-engine build by adding the path to the parent folder of the system-summary-report-tool to the `librarySourcesDir` variable in the `wrims-engine/gradle.properties` file.

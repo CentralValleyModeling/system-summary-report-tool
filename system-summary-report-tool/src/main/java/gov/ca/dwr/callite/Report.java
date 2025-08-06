@@ -5,6 +5,7 @@ package gov.ca.dwr.callite;
 import gov.ca.dsm2.input.parser.InputTable;
 import gov.ca.dsm2.input.parser.Parser;
 import gov.ca.dsm2.input.parser.Tables;
+import gov.ca.dwr.callite.validate.Validator;
 import hec.data.TimeWindow;
 import hec.heclib.dss.DSSPathname;
 import hec.heclib.dss.HecTimeSeries;
@@ -12,7 +13,6 @@ import hec.heclib.util.HecTime;
 import hec.io.TimeSeriesContainer;
 
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,8 +30,10 @@ import java.util.logging.Logger;
  * 
  */
 public class Report {
-	private final List<ValidationFailureLog> validationFailureLogs = new ArrayList<>();
-	private static final String DEFAULT_VALIDATION_LOG_FILE = "VALIDATION_FAILURES.csv";
+
+	public boolean isValidationFailed() {
+		return validator.isValidationFailed();
+	}
 
 	/**
 	 * Externalizes the format for output. This allows the flexibility of
@@ -79,7 +81,7 @@ public class Report {
 	private ArrayList<PathnameMap> pathnameMaps;
 	private HashMap<String, String> scalars;
 	private Writer writer;
-	private Double maxTolerance;
+	private Validator validator;
 
 	public Report(String templateFile) throws IOException {
 		this(new FileInputStream(templateFile));
@@ -90,40 +92,34 @@ public class Report {
 	}
 
 	void generateReport(InputStream templateContentStream) throws IOException {
+		validator = new Validator();
 		logger.fine("Parsing input template");
 		Utils.clearMessages();
 		parseTemplateFile(templateContentStream);
 		doProcessing();
 		logger.fine("Done generating report");
-		if( isValidationFailed()) {
-			logger.fine("Some variables exceeded the tolerance limits.");
-			logger.fine("Generating validation failure logs to CSV file.");
-			writeFailureLogsToCSV(",");
-		}
+		validator.validationComplete(getOutputFile());
 	}
 
 	void parseTemplateFile(InputStream templateFileStream) throws IOException {
 		Parser p = new Parser();
 		Tables tables = p.parseModel(templateFileStream);
-		// load scalars into a map
-		InputTable scalarTable = tables.getTableNamed("SCALAR");
-		ArrayList<ArrayList<String>> scalarValues = scalarTable.getValues();
-		int nscalars = scalarValues.size();
-		scalars = new HashMap<String, String>();
-		for (int i = 0; i < nscalars; i++) {
-			String name = scalarTable.getValue(i, "NAME");
-			String value = scalarTable.getValue(i, "VALUE");
-			scalars.put(name, value);
-		}
-		extractMaxTolerance();
+		loadScalarTable(tables.getTableNamed("SCALAR"));
+		loadPathnameTable(tables.getTableNamed("PATHNAME_MAPPING"));
+		loadTimeWindowTable(tables.getTableNamed("TIME_PERIODS"));
+		validator.loadVarianceTable(tables.getTableNamed("VARIABLE_TOLERANCES"));
+	}
 
-		// load pathname mapping into a map
-		InputTable pathnameMappingTable = tables
-				.getTableNamed("PATHNAME_MAPPING");
+
+	private void loadTimeWindowTable(InputTable timeWindowTable) {
+		twValues = timeWindowTable.getValues();
+	}
+
+	private void loadPathnameTable(InputTable pathnameMappingTable) {
 		ArrayList<ArrayList<String>> pmap_values = pathnameMappingTable
 				.getValues();
 		int nvalues = pmap_values.size();
-		pathnameMaps = new ArrayList<PathnameMap>();
+		pathnameMaps = new ArrayList<>();
 		for (int i = 0; i < nvalues; i++) {
 			String var_name = pathnameMappingTable.getValue(i, "VARIABLE");
 			var_name = var_name.replace("\"", "");
@@ -143,28 +139,19 @@ public class Report {
 			path_map.units = pathnameMappingTable.getValue(i, "UNIT");
 			pathnameMaps.add(path_map);
 		}
-		InputTable timeWindowTable = tables.getTableNamed("TIME_PERIODS");
-		twValues = timeWindowTable.getValues();
 	}
 
-	private void extractMaxTolerance() {
-		// set the global max tolerance from the scalars map
-
-		String maxToleranceStr = scalars.get("MAX_TOLERANCE");
-		if (maxToleranceStr != null && !maxToleranceStr.isEmpty()) {
-			try {
-				maxTolerance = Double.parseDouble(maxToleranceStr);
-			} catch (NumberFormatException e) {
-				logger.warning("Invalid MAX_TOLERANCE value: " + maxToleranceStr);
-				ValidationFailureLog validationFailureLog = new ValidationFailureLog("MAX_TOLERANCE Scalar Value failed to parse from inp file", null,
-						null, null);
-				validationFailureLogs.add(validationFailureLog);
-				maxTolerance = null;
-			}
-		} else {
-			logger.warning("No MAX_TOLERANCE value set in input file");
-			maxTolerance = null;
+	private void loadScalarTable(InputTable scalarTable) {
+		ArrayList<ArrayList<String>> scalarValues = scalarTable.getValues();
+		int nscalars = scalarValues.size();
+		scalars = new HashMap<>();
+		for (int i = 0; i < nscalars; i++) {
+			String name = scalarTable.getValue(i, "NAME");
+			String value = scalarTable.getValue(i, "VALUE");
+			scalars.put(name, value);
 		}
+
+		validator.loadMaxTolerance(scalars.get("MAX_TOLERANCE"));
 	}
 
 	public void doProcessing() {
@@ -268,6 +255,7 @@ public class Report {
 			}
 			String data_units = tscBase.units;
 			String data_type = tscBase.parameter;
+			validator.evaluateTimeSeriesDiff(tscAlt, tscBase, pathMap.var_name, tw);
 			if (pathMap.plot) {
 				if (pathMap.report_type.startsWith("average")) {
 					generatePlot(Utils.buildDataArray(tscAlt, tscBase, tw),
@@ -429,8 +417,7 @@ public class Report {
 					}
 					rowData.add(formatDoubleValue(diff));
 					rowData.add(formatDoubleValue(pctDiff));
-
-					evaluatePercentTolerance(pctDiff, pathMap.var_name, tw);
+					validator.evaluateTolerance(Validator.SOURCE_SUMMARY_TABLE, diff, pctDiff, pathMap.var_name, tw);
 				}
 			}
 			if ("B".equals(pathMap.row_type)) {
@@ -449,14 +436,6 @@ public class Report {
 		}
 		writer.endTable();
 
-	}
-
-	private void evaluatePercentTolerance(double pctDiff, String varName, TimeWindow tw) {
-		if (maxTolerance != null && Math.abs(pctDiff) > maxTolerance) {
-			ValidationFailureLog validationFailureLog = new ValidationFailureLog(varName, Utils.formatTimeWindowAsWaterYear(tw),
-					maxTolerance, pctDiff);
-			validationFailureLogs.add(validationFailureLog);
-		}
 	}
 
 	private String formatDoubleValue(double val) {
@@ -536,53 +515,5 @@ public class Report {
 			return 12;
 		}
 		return 0;
-	}
-
-	public List<ValidationFailureLog> getValidationFailureLogs() {
-		return validationFailureLogs;
-	}
-
-	public boolean isValidationFailed() {
-		return !validationFailureLogs.isEmpty();
-	}
-
-	public void writeFailureLogsToCSV(String delimiter) {
-		if (!validationFailureLogs.isEmpty()) {
-			String filePath = getValidationFailureFileName();
-
-			StringBuilder sb = new StringBuilder();
-			sb.append(getValidationFileHeader(delimiter)).append("\n");
-
-			//Add each validation failure log to the CSV
-			for (ValidationFailureLog log : validationFailureLogs) {
-				sb.append(log.getCsvString(delimiter)).append("\n");
-			}
-
-			try (FileWriter writer = new FileWriter(filePath)) {
-				writer.write(sb.toString());
-			} catch (IOException e) {
-				logger.severe("Error writing validation failure logs to CSV: " + e.getMessage());
-			}
-		}
-		else {
-			logger.info("No validation failures to write to CSV.");
-		}
-	}
-
-	private String getValidationFileHeader(String delimiter) {
-		return "Variable Name" + delimiter +
-				"Time Window" + delimiter +
-				"Percent Diff Tolerance" + delimiter +
-				"Percent Diff Value";
-	}
-
-	private String getValidationFailureFileName() {
-		String outputFile = getOutputFile();
-		if (outputFile == null || outputFile.isEmpty()) {
-			logger.warning("Output file is not defined. Defaulting validation log filename to "+DEFAULT_VALIDATION_LOG_FILE);
-			return DEFAULT_VALIDATION_LOG_FILE; // Default name if output file is not set
-		}
-		String baseName = outputFile.substring(0, outputFile.lastIndexOf('.'));
-		return baseName + "_" + DEFAULT_VALIDATION_LOG_FILE;
 	}
 }

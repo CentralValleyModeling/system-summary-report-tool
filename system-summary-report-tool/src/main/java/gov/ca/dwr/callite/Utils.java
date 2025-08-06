@@ -466,18 +466,18 @@ public class Utils {
 			return dlist;
 		}
 		if (tw != null) {
-			Date sd = tw.getStartDate();
-			HecTime sdht=new HecTime();
-			Calendar sdc = Calendar.getInstance();
-			sdc.setTime(sd);
-			sdht.set(sdc);
-			Date ed = tw.getEndDate();
-			HecTime edht=new HecTime();
-			Calendar edc = Calendar.getInstance();
-			edc.setTime(ed);
-			edht.set(edc);  
-			tscc1.trimToTime(sdht, edht);
-			tscc2.trimToTime(sdht, edht);
+			Date startDate = tw.getStartDate();
+			HecTime startDateHecTime=new HecTime();
+			Calendar startDateCalendar = Calendar.getInstance();
+			startDateCalendar.setTime(startDate);
+			startDateHecTime.set(startDateCalendar);
+			Date endDate = tw.getEndDate();
+			HecTime endDateHecTime=new HecTime();
+			Calendar endDateCalendar = Calendar.getInstance();
+			endDateCalendar.setTime(endDate);
+			endDateHecTime.set(endDateCalendar);
+			tscc1.trimToTime(startDateHecTime, endDateHecTime);
+			tscc2.trimToTime(startDateHecTime, endDateHecTime);
 		}	
 		int[] size1=new int[12];
 		int[] size2=new int[12];
