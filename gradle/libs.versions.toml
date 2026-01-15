@@ -1,5 +1,5 @@
 [versions]
-hec-monolith = "5.3.5"
+hec-monolith = "6.0.0"
 pdf-renderer = "1.0.5"
 dom4j = "1.6.1"
 crimson = "1.1.3"
