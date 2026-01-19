@@ -1,6 +1,6 @@
-package gov.ca.dwr.callite;
+package gov.ca.water.ssrt;
 
-import gov.ca.dwr.callite.Report.Writer;
+import gov.ca.water.ssrt.Report.Writer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

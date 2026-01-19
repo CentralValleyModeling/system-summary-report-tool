@@ -25,7 +25,7 @@ startScripts {
     }
 }
 
-mainClassName = 'gov.ca.dwr.callite.Main'
+mainClassName = 'gov.ca.water.ssrt.Main'
 
 tasks.named('distTar').configure { enabled = false }
 distributions {

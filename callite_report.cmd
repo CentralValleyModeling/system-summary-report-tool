@@ -37,7 +37,7 @@ set classpath=%classpath%;%callite_home%/lib/iText.jar
 set classpath=%classpath%;%callite_home%/lib/jfreechart.jar
 set classpath=%classpath%;%callite_home%/lib/pdf-renderer.jar
 
-"%callite_home%/jre1.8.0_212/bin/java" -mx512m  -Djava.library.path="%callite_home%/lib" -classpath "%classpath%" gov.ca.dwr.callite.Batch %1%
+"%callite_home%/jre1.8.0_212/bin/java" -mx512m  -Djava.library.path="%callite_home%/lib" -classpath "%classpath%" gov.ca.water.ssrt.Batch %1%
 :end
 endlocal 
 rem 

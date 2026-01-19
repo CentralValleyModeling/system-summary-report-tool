@@ -1,8 +1,8 @@
 /*  TODO: Refactor the reporting tools to use a common library of plotting and tabulating functions.*/
 
-package gov.ca.dwr.callite;
+package gov.ca.water.ssrt;
 
-import gov.ca.dwr.callite.Report.PathnameMap;
+import gov.ca.water.ssrt.Report.PathnameMap;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
-import java.util.Iterator;
 
 import hec.heclib.dss.DSSPathname;
 import hec.heclib.dss.HecTimeSeries;
