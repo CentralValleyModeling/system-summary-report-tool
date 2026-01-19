@@ -1,4 +1,4 @@
-package gov.ca.dwr.callite.validate;
+package gov.ca.water.ssrt.validate;
 
 public class ValidationFailureLog {
     VariableTolerance variableTolerance;

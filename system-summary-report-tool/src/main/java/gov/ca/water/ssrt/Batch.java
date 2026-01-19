@@ -1,6 +1,4 @@
-package gov.ca.dwr.callite;
-
-import java.io.File;
+package gov.ca.water.ssrt;
 
 public class Batch {
 

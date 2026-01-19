@@ -1,7 +1,7 @@
-package gov.ca.dwr.callite.validate;
+package gov.ca.water.ssrt.validate;
 
 import gov.ca.dsm2.input.parser.InputTable;
-import gov.ca.dwr.callite.Utils;
+import gov.ca.water.ssrt.Utils;
 import hec.data.TimeWindow;
 import hec.io.TimeSeriesContainer;
 
