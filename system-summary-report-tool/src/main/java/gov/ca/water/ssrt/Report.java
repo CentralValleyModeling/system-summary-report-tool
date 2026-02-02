@@ -1,11 +1,11 @@
 /*  TODO: Refactor the reporting tools to use a common library of plotting and tabulating functions.*/
 
-package gov.ca.dwr.callite;
+package gov.ca.water.ssrt;
 
 import gov.ca.dsm2.input.parser.InputTable;
 import gov.ca.dsm2.input.parser.Parser;
 import gov.ca.dsm2.input.parser.Tables;
-import gov.ca.dwr.callite.validate.Validator;
+import gov.ca.water.ssrt.validate.Validator;
 import hec.data.TimeWindow;
 import hec.heclib.dss.DSSPathname;
 import hec.heclib.dss.HecTimeSeries;

@@ -3,7 +3,7 @@
 *  TODO: Refactor this class to use the java.time package instead of the java.util package.
 *  TODO: Refactor the reporting tools to use a common library of plotting and tabulating functions.
 */
-package gov.ca.dwr.callite;
+package gov.ca.water.ssrt;
 
 import java.time.Duration;
 import java.util.Calendar;

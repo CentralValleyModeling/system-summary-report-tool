@@ -1,4 +1,4 @@
-package gov.ca.dwr.callite.validate;
+package gov.ca.water.ssrt.validate;
 
 public enum ToleranceType {
     MAX_VALUE_DIFF("Absolute Tolerance Value Difference"),

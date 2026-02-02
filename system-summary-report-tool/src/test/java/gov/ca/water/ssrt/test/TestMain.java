@@ -1,8 +1,8 @@
-package gov.ca.dwr.callite.test;
+package gov.ca.water.ssrt.test;
 
 import java.io.IOException;
 
-import gov.ca.dwr.callite.Report;
+import gov.ca.water.ssrt.Report;
 
 public class TestMain {
 	public static void main(String[] args) throws IOException{
