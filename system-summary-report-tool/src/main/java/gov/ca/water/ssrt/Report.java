@@ -253,7 +253,7 @@ public class Report {
 				tscAlt=Utils.taf2cfs(tscAlt);
 			}
 			String data_units = tscBase.units;
-			String data_type = tscBase.parameter;
+			String data_type = Utils.getYAxisLabelType(tscBase);
 			validator.evaluateTimeSeriesDiff(tscAlt, tscBase, pathMap.var_name, tw);
 			if (pathMap.plot) {
 				if (pathMap.report_type.startsWith("average")) {
