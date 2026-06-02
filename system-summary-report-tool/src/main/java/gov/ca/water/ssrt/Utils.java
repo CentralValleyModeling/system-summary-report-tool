@@ -179,8 +179,9 @@ public class Utils {
 		}
 	}
     public static String getYAxisLabelType(TimeSeriesContainer tsc) {
+        String defaultLabel = "VARIABLE VALUE";
         if (tsc == null) {
-            return "";
+            return defaultLabel;
         }
 
         try {
@@ -203,7 +204,7 @@ public class Utils {
             return tsc.type;
         }
 
-        return "";
+        return defaultLabel;
     }
 	public static String getExceedancePlotTitle(PathnameMap path_map) {
 		String title = "Exceedance " + path_map.var_name.replace("\"", "");
